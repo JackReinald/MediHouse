@@ -1,0 +1,13 @@
+Objetivo: Hacer una aplicación de registro de medicamentos de la casa
+
+Cosas generales que necesitará la app:
+
+1) Base de datos para guardar los medicamentos
+2) Backend para controlar el inventario (registrar nuevo medicamento, borrar, actualizar cantidades, etc.)
+3) Frontend para controlar la aplicación fácilmente
+4) Servidor web para alojar la app y no tener que manejarlo yo.
+
+
+Diseño:
+1) Base de datos para guardar los medicamentos:
+MySQL, 

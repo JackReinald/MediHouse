@@ -20,18 +20,19 @@ import java.util.Optional;
 @RequestMapping("/api/alerts")
 public class AlertsController {
     private final BLAlerts alertsBL;
+    // Create
 
+    // Read
     @GetMapping({"", "/"})
     public ResponseEntity<List<Alerts>> getAllAlerts(){
         List<Alerts> alertsList = alertsBL.getAllAlerts();
         return new ResponseEntity<>(alertsList, HttpStatus.OK);
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<Alerts> getAlertById(@PathVariable Long id){
         Optional<Alerts> alerts = alertsBL.getAlertById(id);
         return alerts.map(a -> new ResponseEntity<>(alerts.get(), HttpStatus.OK))
-                .orElseThrow(() -> new NoSuchElementException("Medicine not found with ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Alert not found with ID: " + id));
     }
 }
 

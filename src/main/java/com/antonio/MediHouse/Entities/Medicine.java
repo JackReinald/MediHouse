@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -30,9 +31,9 @@ public class Medicine {
     @Column(name = "PurchaseAmount")
     private Long purchaseAmount;
     @Column(name = "CurrentAmount")
-    private Long currentAmount;
+    private Double currentAmount;
     @Column(name = "RegistrationDate")
-    private Date registrationDate;
+    private LocalDateTime registrationDate;
     @Column(name = "ExpirationDate")
     private Date expirationDate;
 

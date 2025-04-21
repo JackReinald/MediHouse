@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -24,9 +25,9 @@ public class UsageHistory {
     @Embedded
     private User user;
     @Column(name = "UsageDate")
-    private Date usageDate;
+    private LocalDateTime usageDate;
     @Column(name = "DosageUnit")
-    private String dosageUnit;
+    private String dosageUnit;  // Modificar luego con un enum con todas las posibles unidades
     @Column(name = "UsedAmount")
     private Double usedAmount;
     @Column(name = "Reason")

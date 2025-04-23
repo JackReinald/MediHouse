@@ -1,11 +1,13 @@
 package com.antonio.MediHouse.Entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -17,10 +19,16 @@ public class Medicine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdMedicine")
     private Long idMedicine;
+
     // Foreign keys
     @OneToMany(mappedBy = "medicine", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @ToString.Exclude
     private List<UsageHistory> usageHistoryList;
+
     @OneToMany(mappedBy = "medicine", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @ToString.Exclude
     private List<Alerts> alertList;
 
     // Entity attributes
@@ -35,7 +43,7 @@ public class Medicine {
     @Column(name = "RegistrationDate")
     private LocalDateTime registrationDate;
     @Column(name = "ExpirationDate")
-    private Date expirationDate;
+    private LocalDate expirationDate;
 
     // Implicit constructor, getters and setters thanks to Lombok
 }

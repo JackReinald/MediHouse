@@ -33,7 +33,7 @@ public class MedicineController {
         List<Medicine> medicineList = medicineBL.getAllMedicines();
         return new ResponseEntity<>(medicineList, HttpStatus.OK);
     }
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}", "/{id}/"})
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Medicine> getMedicineById(@PathVariable Long id) {
         Medicine medicine = medicineBL.getMedicineById(id);
@@ -41,35 +41,28 @@ public class MedicineController {
     }
 
     // Update
-    @PutMapping("/{id}")
+    @PutMapping({"/{id}", "/{id}/"})
     public ResponseEntity<Medicine> updateMedicine(@PathVariable Long id, @RequestBody Medicine medicine){
         Medicine updatedMedicine = medicineBL.updateMedicine(id, medicine);
         return new ResponseEntity<>(updatedMedicine, HttpStatus.OK);
     }
-    @PutMapping("/{id}/use")
-    public ResponseEntity<Medicine> useMedicine(@PathVariable Long id,
+    @PutMapping({"/{id}/use", "/{id}/use/"})
+    public ResponseEntity<?> useMedicine(@PathVariable Long id,
                                                 @RequestParam String userName,
                                                 @RequestParam int userAge,
                                                 @RequestBody MedicineUsageRequest medicineRequest){
-        try {
-            System.out.println("Entró en el try");
-            User user = new User(userName, userAge);
-            Medicine usedMedicine = medicineBL.useMedicine(id,medicineRequest, user);
-            return ResponseEntity.ok(usedMedicine);
-        } catch (ResourceNotFoundException e){
-            System.out.println("Entró en resource not found");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException e){
-            System.out.println("Entró en bad request");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e){
-            System.out.println("Entró en error 500");
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        User user = new User(userName, userAge);
+        boolean success = medicineBL.useMedicine(id, medicineRequest, user);
+        if (success) {
+            Medicine updatedMedicine = medicineBL.getMedicineById(id); // Recargar la medicina actualizada
+            return ResponseEntity.ok(updatedMedicine);
+        } else {
+            return ResponseEntity.badRequest().body("Not enough stock for medicine with ID: " + id);
         }
     }
 
     // Delete
-    @DeleteMapping("/{id}")
+    @DeleteMapping({"/{id}", "/{id}/"})
     public ResponseEntity<String> deleteMedicine(@PathVariable Long id){
         try{
             medicineBL.deleteMedicine(id);
@@ -82,5 +75,4 @@ public class MedicineController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

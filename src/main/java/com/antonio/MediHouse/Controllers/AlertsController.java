@@ -12,15 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/alerts")
 public class AlertsController {
     private final BLAlerts alertsBL;
-    // Create
 
     // Read
     @GetMapping({"", "/"})
@@ -30,10 +27,10 @@ public class AlertsController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<Alerts> getAlertById(@PathVariable Long id){
-        Optional<Alerts> alerts = alertsBL.getAlertById(id);
-        return alerts.map(a -> new ResponseEntity<>(alerts.get(), HttpStatus.OK))
-                .orElseThrow(() -> new NoSuchElementException("Alert not found with ID: " + id));
+        Alerts alerts = alertsBL.getAlertById(id);
+        return ResponseEntity.ok(alerts);
     }
+
 }
 
 

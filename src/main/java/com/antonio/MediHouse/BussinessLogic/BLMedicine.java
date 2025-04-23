@@ -2,13 +2,16 @@ package com.antonio.MediHouse.BussinessLogic;
 
 import com.antonio.MediHouse.DTO.MedicineUsageRequest;
 import com.antonio.MediHouse.DataAccess.DAMedicine;
+import com.antonio.MediHouse.Entities.AlertTypes;
 import com.antonio.MediHouse.Entities.Medicine;
 import com.antonio.MediHouse.Entities.User;
+import com.antonio.MediHouse.ExceptionHandling.ExpiredResourceException;
 import com.antonio.MediHouse.ExceptionHandling.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,6 +20,7 @@ import java.util.List;
 public class BLMedicine {
     private final DAMedicine medicineDA;
     private final BLUsageHistory usageHistoryBL;
+    private final BLAlerts alertsBL;
 
     // Create
     public Medicine createMedicine(Medicine medicine){
@@ -44,28 +48,43 @@ public class BLMedicine {
         return medicineDA.save(medicine);
     }
     @Transactional
-    public Medicine useMedicine(Long id, MedicineUsageRequest medicineRequest, User user){
+    public boolean useMedicine(Long id, MedicineUsageRequest medicineRequest, User user) {
         System.out.println("Entró a logica de negocio de useMedicine()");
         Medicine medicine = getMedicineById(id);    // Verificar que exista el ID
+        LocalDate today = LocalDateTime.now().toLocalDate();
 
-        // Verificar si la cantidad usada de medicina supera la actual
+        // Verificar estado del stock INICIAL para alertas
+        if (medicine.getCurrentAmount() == 0) {
+            alertsBL.createAlert(AlertTypes.EMPTY_STOCK, medicine);
+        } else if (medicine.getCurrentAmount() <= medicine.getPurchaseAmount() * 0.15) {
+            alertsBL.createAlert(AlertTypes.LOW_STOCK, medicine);
+        } else if (today.isAfter(medicine.getExpirationDate())) {
+            alertsBL.createAlert(AlertTypes.EXPIRED, medicine);
+            throw new ExpiredResourceException("The medicine with ID " + id +
+                    " expired on " + medicine.getExpirationDate());
+        }
+
+        // Intentar usar la medicina
         if (medicine.getCurrentAmount() >= medicineRequest.quantityUsed()) {
-            // Obtener cantidad de existencias actual
             var originalAmount = medicine.getCurrentAmount();
-            // Restar la cantidad usada a la cantidad original para obtener la actual
             var currentAmount = originalAmount - medicineRequest.quantityUsed();
-            // Guardar la nueva cantidad
             medicine.setCurrentAmount(currentAmount);
             medicineDA.save(medicine);  // Persistir operación
-            // Persistir la operación en UsageHistory
+
+            // Verificar si el stock AHORA es cero y crear la alerta
+            if (medicine.getCurrentAmount() == 0) {
+                alertsBL.createAlert(AlertTypes.EMPTY_STOCK, medicine);
+            }
+
             usageHistoryBL.recordUsageHistory(medicine, user, medicineRequest);
-            return medicine;
-        }
-        else {
-            throw new IllegalArgumentException("Not enough stock for medicine with ID: " + id);
+
+            return true; // Indica que la operación fue exitosa
+        } else {
+            // No lanzamos la excepción aquí, simplemente retornamos false
+            System.out.println("Not enough stock for medicine with ID: " + id);
+            return false; // Indica que la operación falló por falta de stock
         }
     }
-
     // Delete
     public void deleteMedicine(Long id) throws Exception {
         // It checks if medicine ID exists

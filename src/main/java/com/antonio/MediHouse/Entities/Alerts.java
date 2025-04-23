@@ -1,9 +1,11 @@
 package com.antonio.MediHouse.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -17,15 +19,16 @@ public class Alerts {
     // Foreign key
     @ManyToOne
     @JoinColumn(name = "IdMedicine", nullable = false)
+    @JsonBackReference
     private Medicine medicine;
 
     // Entity attributes
     @Column(name = "AlertDate")
-    private Date alertDate;
+    private LocalDateTime alertDate;
     @Column(name = "AlertType")
-    private String alertType;
+    @Enumerated(EnumType.STRING)
+    private AlertTypes alertType;   // Low stock, empty medicine, expired medicine
     @Column(name = "IsResolved")
-    private boolean isResolved;
-
+    private boolean isResolved = false;
 
 }

@@ -1,5 +1,6 @@
 package com.antonio.MediHouse.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +20,12 @@ public class UsageHistory {
     // Foreign key
     @ManyToOne
     @JoinColumn(name = "IdMedicine", nullable = false)
+    @JsonBackReference
     private Medicine medicine;
 
     // Entity attributes
+    @Column(name = "MedicineName")
+    private String medicineName;
     @Embedded
     private User user;
     @Column(name = "UsageDate")

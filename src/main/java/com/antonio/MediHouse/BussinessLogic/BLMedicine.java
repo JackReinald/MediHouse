@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor    // Genera un constructor conforme se añaden más atributos
@@ -48,51 +50,67 @@ public class BLMedicine {
         return medicineDA.save(medicine);
     }
     @Transactional
-    public boolean useMedicine(Long id, MedicineUsageRequest medicineRequest, User user) {
-        System.out.println("Entró a logica de negocio de useMedicine()");
-        Medicine medicine = getMedicineById(id);    // Verificar que exista el ID
+    public Map<String, Object> useMedicine(Long id, MedicineUsageRequest medicineRequest, User user) {
         LocalDate today = LocalDateTime.now().toLocalDate();
+        Map<String, Object> operation = new HashMap<>();
+        boolean isSuccessful = false;
+        String message = "";
 
-        // Verificar estado del stock INICIAL para alertas
-        if (medicine.getCurrentAmount() == 0) {
-            alertsBL.createAlert(AlertTypes.EMPTY_STOCK, medicine);
-        } else if (medicine.getCurrentAmount() <= medicine.getPurchaseAmount() * 0.15) {
-            alertsBL.createAlert(AlertTypes.LOW_STOCK, medicine);
-        } else if (today.isAfter(medicine.getExpirationDate())) {
-            alertsBL.createAlert(AlertTypes.EXPIRED, medicine);
-            throw new ExpiredResourceException("The medicine with ID " + id +
-                    " expired on " + medicine.getExpirationDate());
-        }
+        try{
+            Medicine medicine = getMedicineById(id);    // Verificar que exista el ID
 
-        // Intentar usar la medicina
-        if (medicine.getCurrentAmount() >= medicineRequest.quantityUsed()) {
-            var originalAmount = medicine.getCurrentAmount();
-            var currentAmount = originalAmount - medicineRequest.quantityUsed();
-            medicine.setCurrentAmount(currentAmount);
-            medicineDA.save(medicine);  // Persistir operación
 
-            // Verificar si el stock AHORA es cero y crear la alerta
+            // Verificar estado del stock INICIAL para alertas
             if (medicine.getCurrentAmount() == 0) {
                 alertsBL.createAlert(AlertTypes.EMPTY_STOCK, medicine);
+                throw new IllegalArgumentException("Not enough stock for " + medicine.getName()
+                        + " (ID= " + id + "), stock is empty" );
+            } else if (medicine.getCurrentAmount() <= medicine.getPurchaseAmount() * 0.15) {
+                alertsBL.createAlert(AlertTypes.LOW_STOCK, medicine);
+            } else if (today.isAfter(medicine.getExpirationDate())) {
+                alertsBL.createAlert(AlertTypes.EXPIRED, medicine);
+                throw new ExpiredResourceException("The medicine " + medicine.getName()+ "(ID= " + id + ")" +
+                        " expired on " + medicine.getExpirationDate());
             }
 
-            usageHistoryBL.recordUsageHistory(medicine, user, medicineRequest);
+            // Intentar usar la medicina
+            if (medicine.getCurrentAmount() >= medicineRequest.quantityUsed()) {
+                var originalAmount = medicine.getCurrentAmount();
+                var currentAmount = originalAmount - medicineRequest.quantityUsed();
+                medicine.setCurrentAmount(currentAmount);
+                medicineDA.save(medicine);  // Persistir operación
 
-            return true; // Indica que la operación fue exitosa
-        } else {
-            // No lanzamos la excepción aquí, simplemente retornamos false
-            System.out.println("Not enough stock for medicine with ID: " + id);
-            return false; // Indica que la operación falló por falta de stock
+                // Verificar si el stock AHORA es cero y crear la alerta
+                if (medicine.getCurrentAmount() == 0) {
+                    alertsBL.createAlert(AlertTypes.EMPTY_STOCK, medicine);
+                }
+
+                usageHistoryBL.recordUsageHistory(medicine, user, medicineRequest);
+                isSuccessful = true; // Indica que la operación fue exitosa
+            }
+        } catch (ResourceNotFoundException | IllegalArgumentException | ExpiredResourceException e){
+            message = e.getMessage();
         }
+        operation.put("success", isSuccessful);
+        operation.put("message", message);
+
+        return operation;
     }
     // Delete
-    public void deleteMedicine(Long id) throws Exception {
+    public Map<String, Object> deleteMedicine(Long id) {
         // It checks if medicine ID exists
         Medicine medicine = getMedicineById(id);
+        Map<String, Object> operation = new HashMap<>();
+        boolean isSuccessful = false;
+        String message = "";
         try {
             medicineDA.deleteById(medicine.getIdMedicine());
+            isSuccessful = true;
         } catch(Exception e){
-            throw new Exception("Unexpected error: " + e.getMessage());
+            message = e.getMessage();
         }
+        operation.put("isSuccesfull", isSuccessful);
+        operation.put("message", message);
+        return operation;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -52,27 +53,38 @@ public class MedicineController {
                                                 @RequestParam int userAge,
                                                 @RequestBody MedicineUsageRequest medicineRequest){
         User user = new User(userName, userAge);
-        boolean success = medicineBL.useMedicine(id, medicineRequest, user);
-        if (success) {
-            Medicine updatedMedicine = medicineBL.getMedicineById(id); // Recargar la medicina actualizada
-            return ResponseEntity.ok(updatedMedicine);
+        Map<String, Object> operation = medicineBL.useMedicine(id, medicineRequest, user);
+
+        if ((boolean) operation.get("success")) {
+            return ResponseEntity.ok(operation);
         } else {
-            return ResponseEntity.badRequest().body("Not enough stock for medicine with ID: " + id);
+            String tipoError = operation.get("message").toString().toLowerCase();
+            if (tipoError.contains("not found")){
+                return new ResponseEntity<>(operation, HttpStatus.NOT_FOUND);
+            } else if (tipoError.contains("empty")) {
+                return new ResponseEntity<>(operation, HttpStatus.BAD_REQUEST);
+            } else if (tipoError.contains("expired")) {
+                return new ResponseEntity<>(operation, HttpStatus.FORBIDDEN);
+            } else {
+                return ResponseEntity.badRequest().body(operation);
+            }
+
         }
     }
 
     // Delete
     @DeleteMapping({"/{id}", "/{id}/"})
-    public ResponseEntity<String> deleteMedicine(@PathVariable Long id){
+    public ResponseEntity<?> deleteMedicine(@PathVariable Long id){
+        var operation = medicineBL.deleteMedicine(id);
+
         try{
-            medicineBL.deleteMedicine(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(operation,HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(operation, HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(operation, HttpStatus.BAD_REQUEST);
         } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(operation, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

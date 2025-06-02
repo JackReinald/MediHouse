@@ -22,12 +22,12 @@ public class Medicine {
 
     // Foreign keys
     @OneToMany(mappedBy = "medicine", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("medicine-usage")
     @ToString.Exclude
     private List<UsageHistory> usageHistoryList;
 
     @OneToMany(mappedBy = "medicine", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("medicine-alerts")
     @ToString.Exclude
     private List<Alerts> alertList;
 

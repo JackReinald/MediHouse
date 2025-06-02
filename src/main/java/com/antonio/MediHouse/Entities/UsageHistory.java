@@ -17,17 +17,22 @@ public class UsageHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdUsage")
     private Long idUsage;
-    // Foreign key
+
+    // Foreign keys
     @ManyToOne
     @JoinColumn(name = "IdMedicine", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("medicine-usage")
     private Medicine medicine;
+
+    @ManyToOne
+    @JoinColumn(name = "IdUser", nullable = false)
+    @JsonBackReference("user-usage")
+    private User user;
 
     // Entity attributes
     @Column(name = "MedicineName")
     private String medicineName;
-    @Embedded
-    private User user;
+
     @Column(name = "UsageDate")
     private LocalDateTime usageDate;
     @Column(name = "DosageUnit")

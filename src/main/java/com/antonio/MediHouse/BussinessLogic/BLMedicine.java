@@ -6,6 +6,7 @@ import com.antonio.MediHouse.Entities.AlertTypes;
 import com.antonio.MediHouse.Entities.Medicine;
 import com.antonio.MediHouse.Entities.User;
 import com.antonio.MediHouse.ExceptionHandling.ExpiredResourceException;
+import com.antonio.MediHouse.ExceptionHandling.ResourceAlreadyExistsException;
 import com.antonio.MediHouse.ExceptionHandling.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor    // Genera un constructor conforme se añaden más atributos
@@ -26,9 +28,16 @@ public class BLMedicine {
 
     // Create
     public Medicine createMedicine(Medicine medicine){
+      // Verificar que la medicina no esté ya registrada mediante el ingrediente activo y el nombre
+      boolean isRegistered =  medicineDA.existsByNameAndActiveIngredient(medicine.getName(), medicine.getActiveIngredient());
+
+      if (!isRegistered) {
         medicine.setCurrentAmount(Double.valueOf(medicine.getPurchaseAmount()));
         medicine.setRegistrationDate(LocalDateTime.now());
         return medicineDA.save(medicine);
+      }
+
+      throw new ResourceAlreadyExistsException("The medicine " + medicine.getName() + " with active ingredient " + medicine.getActiveIngredient() + " already exists.");
     }
 
     // Read

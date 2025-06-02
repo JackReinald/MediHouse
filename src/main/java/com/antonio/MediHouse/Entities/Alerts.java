@@ -19,7 +19,7 @@ public class Alerts {
     // Foreign key
     @ManyToOne
     @JoinColumn(name = "IdMedicine", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("medicine-alerts")
     private Medicine medicine;
 
     // Entity attributes

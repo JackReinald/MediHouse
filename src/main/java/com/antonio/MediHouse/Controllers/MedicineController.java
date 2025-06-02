@@ -4,6 +4,7 @@ import com.antonio.MediHouse.BussinessLogic.BLMedicine;
 import com.antonio.MediHouse.DTO.MedicineUsageRequest;
 import com.antonio.MediHouse.Entities.Medicine;
 import com.antonio.MediHouse.Entities.User;
+import com.antonio.MediHouse.ExceptionHandling.ResourceAlreadyExistsException;
 import com.antonio.MediHouse.ExceptionHandling.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,10 +51,11 @@ public class MedicineController {
     }
     @PutMapping({"/{id}/use", "/{id}/use/"})
     public ResponseEntity<?> useMedicine(@PathVariable Long id,
-                                                @RequestParam String userName,
-                                                @RequestParam int userAge,
-                                                @RequestBody MedicineUsageRequest medicineRequest){
-        User user = new User(userName, userAge);
+                                         @RequestParam String userName,
+                                         @RequestParam int userAge,
+                                         @RequestBody MedicineUsageRequest medicineRequest,
+                                         @RequestBody User user){
+
         Map<String, Object> operation = medicineBL.useMedicine(id, medicineRequest, user);
 
         if ((boolean) operation.get("success")) {
@@ -87,4 +90,15 @@ public class MedicineController {
             return new ResponseEntity<>(operation, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+  // Manejo de excepción recurso existente
+  @ExceptionHandler(ResourceAlreadyExistsException.class)
+  public ResponseEntity<Map<String, Object>> resourceAlreadyExistsException(Exception ex) {
+    Map<String, Object> error = new HashMap<>();
+    error.put("error", "The medicine already existe ");
+    error.put("message", ex.getMessage());
+    error.put("status", HttpStatus.CONFLICT);
+
+    return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+  }
 }

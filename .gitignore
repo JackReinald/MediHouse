@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Frontend (Node/Quasar) ###
+/MediHouse-frontend/node_modules
+/MediHouse-frontend/dist/
+/MediHouse-frontend/.quasar/
+/MediHouse-frontend/.npmrc

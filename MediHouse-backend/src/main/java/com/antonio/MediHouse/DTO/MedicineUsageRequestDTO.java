@@ -1,6 +1,6 @@
 package com.antonio.MediHouse.DTO;
 
-public record MedicineUsageRequest(
+public record MedicineUsageRequestDTO(
         Double quantityUsed,
         String dosageUnit,
         String reason

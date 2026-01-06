@@ -19,7 +19,7 @@ public class User {
 
   // LLaves foráneas
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  @JsonManagedReference("user-usage")
+  @JsonManagedReference("idUser-usage")
   private List<UsageHistory> usageHistoryList;
 
   @Column(name = "Name")

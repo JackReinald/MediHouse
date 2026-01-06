@@ -1,7 +1,8 @@
 <template>
-  <q-page class="q-pa-md">
-    <q-form class="q-gutter-lg" @submit="onSubmit" @reset="onReset">
+  <q-page class="q-pa-md flex flex-center">
+    <q-form class="q-gutter-xs q-pa-md row" @submit="onSubmit" @reset="onReset" style="width: 100%; max-width: 400px;">
       <q-input
+        class="col-12"
         v-model="email"
         filled
         label="Ingrese su correo electrónico"
@@ -10,10 +11,11 @@
         :rules="[(val) => (val && val.length > 0) || 'Por favor ingrese su correo']"
       />
       <q-input
+        class="col-12"
         v-model="password"
         filled
         :type="isPwd ? 'password' : 'text'"
-        placeholder="aguacate1234"
+        placeholder="Aguacate1234"
         label="Ingrese su contraseña"
         lazy-rules
         :rules="[
@@ -31,13 +33,14 @@
         </template>
       </q-input>
 
-      <div class="q-mt-md">
+      <div class="q-mt-md  col-12 row justify-evenly">
         <q-btn type="submit" icon="mail">Enviar</q-btn>
         <q-btn type="reset" icon="clear_all" hint="something123">Limpiar todo</q-btn>
       </div>
+      <div class="col-12 row justify-center">
+        <q-toggle v-model="accept" label="¿El servidor respondió bien?" />
+      </div>
     </q-form>
-
-    <q-toggle v-model="accept" label="¿El servidor respondió bien?" />
   </q-page>
 </template>
 
@@ -74,6 +77,7 @@ const onSubmit = () => {
 const onReset = () => {
   email.value = null
   password.value = null
-  isPwd.value = null
+  isPwd.value = true
+  accept.value = false
 }
 </script>

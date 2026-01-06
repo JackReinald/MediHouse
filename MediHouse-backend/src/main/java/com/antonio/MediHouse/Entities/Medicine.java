@@ -45,5 +45,5 @@ public class Medicine {
     @Column(name = "ExpirationDate")
     private LocalDate expirationDate;
 
-    // Implicit constructor, getters and setters thanks to Lombok
+    // Implicit constructor, getters, and setters thanks to Lombok
 }

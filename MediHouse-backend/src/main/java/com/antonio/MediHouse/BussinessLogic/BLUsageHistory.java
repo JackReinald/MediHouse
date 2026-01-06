@@ -1,16 +1,16 @@
 package com.antonio.MediHouse.BussinessLogic;
 
-import com.antonio.MediHouse.DTO.MedicineUsageRequest;
+import com.antonio.MediHouse.DTO.MedicineUsageRequestDTO;
 import com.antonio.MediHouse.DataAccess.DAUsageHistory;
 import com.antonio.MediHouse.Entities.Medicine;
 import com.antonio.MediHouse.Entities.UsageHistory;
 import com.antonio.MediHouse.Entities.User;
+import com.antonio.MediHouse.ExceptionHandling.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +18,7 @@ public class BLUsageHistory {
     private final DAUsageHistory usageHistoryDA;
 
     // Create
-    public void recordUsageHistory(Medicine medicine, User user, MedicineUsageRequest medicineRequest){
+    public void recordUsageHistory(Medicine medicine, User user, MedicineUsageRequestDTO medicineRequest){
         // Create the record
         UsageHistory usageHistory = new UsageHistory();
         usageHistory.setMedicine(medicine);
@@ -36,7 +36,10 @@ public class BLUsageHistory {
     public List<UsageHistory> getAllUsageHistory(){
         return usageHistoryDA.findAll();
     }
-    public Optional<UsageHistory> getUsageHistoryById(Long id){
-        return usageHistoryDA.findById(id);
+
+    public UsageHistory getUsageHistoryById(Long id) {
+        // findById busca inmediatamente y lanzará tu excepción si no existe
+        return usageHistoryDA.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usage history with ID " + id + " was not found"));
     }
 }

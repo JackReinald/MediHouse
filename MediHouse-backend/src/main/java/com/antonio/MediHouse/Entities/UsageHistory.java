@@ -26,7 +26,7 @@ public class UsageHistory {
 
     @ManyToOne
     @JoinColumn(name = "IdUser", nullable = false)
-    @JsonBackReference("user-usage")
+    @JsonBackReference("idUser-usage")
     private User user;
 
     // Entity attributes

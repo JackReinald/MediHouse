@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md flex flex-center">
-    <q-form class="q-gutter-xs q-pa-md row" @submit="onSubmit" @reset="onReset" style="width: 100%; max-width: 400px;">
+    <q-form class="q-gutter-xs q-pa-md row" @submit="handleLogin" @reset="onReset" style="width: 100%; max-width: 400px;">
       <q-input
         class="col-12"
-        v-model="email"
+        v-model="loginData.email"
         filled
         label="Ingrese su correo electrónico"
         placeholder="mary@domain.com"
@@ -12,9 +12,9 @@
       />
       <q-input
         class="col-12"
-        v-model="password"
+        v-model="loginData.password"
         filled
-        :type="isPwd ? 'password' : 'text'"
+        :type="isVisible ? 'password' : 'text'"
         placeholder="Aguacate1234"
         label="Ingrese su contraseña"
         lazy-rules
@@ -26,9 +26,9 @@
       >
         <template v-slot:append>
           <q-icon
-            :name="isPwd ? 'visibility_off' : 'visibility'"
+            :name="isVisible ? 'visibility_off' : 'visibility'"
             class="cursor-pointer"
-            @click="isPwd = !isPwd"
+            @click="isVisible = !isVisible"
           />
         </template>
       </q-input>
@@ -37,47 +37,58 @@
         <q-btn type="submit" icon="mail">Enviar</q-btn>
         <q-btn type="reset" icon="clear_all" hint="something123">Limpiar todo</q-btn>
       </div>
-      <div class="col-12 row justify-center">
-        <q-toggle v-model="accept" label="¿El servidor respondió bien?" />
-      </div>
     </q-form>
   </q-page>
 </template>
 
 <script setup>
 import { useQuasar } from 'quasar'
+import { api } from 'src/boot/axios';
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
 const $q = useQuasar()
+const router = useRouter();
 
-const email = ref(null)
-const password = ref(null)
-const isPwd = ref(true)
-const accept = ref(false)
+const loginData = ref({
+  email: '',
+  password: '',
+})
 
-const onSubmit = () => {
-  if (accept.value) {
-    console.log('Entró al condicional de aceptado')
-    $q.notify({
-      color: 'green-4',
-      textColor: 'white',
-      icon: 'cloud_done',
-      message: 'Submitted',
-    })
-  } else {
-    console.log('Entró al condicional de rechazado')
+const isVisible = ref(true)
 
+const onReset = () => {
+  loginData.value = {}
+  isVisible.value = true
+}
+
+const handleLogin = async () => {
+  try {
+    const response = api.post('/api/auth/login', {
+      email: loginData.value.email,
+      password: loginData.value.password,
+    });
+
+    console.log("Response:", await response);
+
+    if ((await response).data.success) {
+      $q.localStorage.set('isLoggedIn', true)
+      $q.notify({
+        color: 'green-4',
+        textColor: 'white',
+        icon: 'cloud_done',
+        message: (await response).data.message,
+      });
+
+      router.push('/')
+    }
+  } catch (error) {
     $q.notify({
       color: 'red-4',
       textColor: 'white',
       icon: 'error',
-      message: 'Not Submitted',
-    })
+      message: error.response.data.message || 'Error during login',
+    });
   }
-}
-const onReset = () => {
-  email.value = null
-  password.value = null
-  isPwd.value = true
-  accept.value = false
 }
 </script>

@@ -8,6 +8,7 @@ import com.antonio.MediHouse.Entities.User;
 import com.antonio.MediHouse.ExceptionHandling.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +19,7 @@ public class BLUsageHistory {
     private final DAUsageHistory usageHistoryDA;
 
     // Create
+    @Transactional
     public void recordUsageHistory(Medicine medicine, User user, MedicineUsageRequestDTO medicineRequest){
         // Create the record
         UsageHistory usageHistory = new UsageHistory();
@@ -33,10 +35,12 @@ public class BLUsageHistory {
     }
 
     // Read
+    @Transactional(readOnly = true)
     public List<UsageHistory> getAllUsageHistory(){
         return usageHistoryDA.findAll();
     }
 
+    @Transactional(readOnly = true)
     public UsageHistory getUsageHistoryById(Long id) {
         // findById busca inmediatamente y lanzará tu excepción si no existe
         return usageHistoryDA.findById(id)

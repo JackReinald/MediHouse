@@ -1,7 +1,7 @@
 const routes = [
   {
     path: '/login',
-    component: () => import('layouts/BlankLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/LoginPage.vue') }
     ]
@@ -9,13 +9,7 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/IndexPage.vue') }
-    ]
-  },
-  {
-    path: '/welcome',
-    component: () => import('layouts/BlankLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       { path: '', component: () => import('pages/LandingPage.vue') }
     ]

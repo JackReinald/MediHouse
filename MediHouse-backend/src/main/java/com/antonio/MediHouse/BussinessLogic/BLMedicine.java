@@ -8,9 +8,9 @@ import com.antonio.MediHouse.Entities.User;
 import com.antonio.MediHouse.ExceptionHandling.ExpiredResourceException;
 import com.antonio.MediHouse.ExceptionHandling.ResourceAlreadyExistsException;
 import com.antonio.MediHouse.ExceptionHandling.ResourceNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,16 +48,19 @@ public class BLMedicine {
 
 
     // Read
+    @Transactional(readOnly = true)
     public List<Medicine> getAllMedicines() {
         return medicineDA.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Medicine getMedicineById(Long id) {
         return medicineDA.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Medicine with ID " + id + " was not found"));
     }
 
     // Update
+    @Transactional
     public Medicine updateMedicine(Long id, Medicine medicine) {
         // It checks if medicine ID exists
         Medicine checkedMedicine = getMedicineById(id);
@@ -108,6 +111,7 @@ public class BLMedicine {
     }
 
     // Delete
+    @Transactional
     public Map<String, Object> deleteMedicine(Long id) {
         // It checks if medicine ID exists
         Medicine medicine = getMedicineById(id);

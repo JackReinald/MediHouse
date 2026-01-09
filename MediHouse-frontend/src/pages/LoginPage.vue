@@ -1,6 +1,11 @@
 <template>
   <q-page class="q-pa-md flex flex-center">
-    <q-form class="q-gutter-xs q-pa-md row" @submit="handleLogin" @reset="onReset" style="width: 100%; max-width: 400px;">
+    <q-form
+      class="q-gutter-xs q-pa-md row"
+      @submit="handleLogin"
+      @reset="onReset"
+      style="width: 100%; max-width: 400px"
+    >
       <q-input
         class="col-12"
         v-model="loginData.email"
@@ -33,9 +38,21 @@
         </template>
       </q-input>
 
-      <div class="q-mt-md  col-12 row justify-evenly">
-        <q-btn type="submit" icon="mail">Enviar</q-btn>
-        <q-btn type="reset" icon="clear_all" hint="something123">Limpiar todo</q-btn>
+      <div class="q-mt-md col-12 row justify-evenly">
+        <q-btn type="submit" icon="mail">
+          <div class="q-ml-sm">Iniciar sesión</div>
+        </q-btn>
+        <q-btn type="reset" icon="clear_all">
+          <div class="q-ml-sm">Limpiar todo</div>
+        </q-btn>
+        <q-btn
+          class="q-mt-sm"
+          flat
+          no-caps
+          color="primary"
+          label="¿No tienes cuenta? Regístrate aquí"
+          to="/register"
+        />
       </div>
     </q-form>
   </q-page>
@@ -43,12 +60,12 @@
 
 <script setup>
 import { useQuasar } from 'quasar'
-import { api } from 'src/boot/axios';
+import { api } from 'src/boot/axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const $q = useQuasar()
-const router = useRouter();
+const router = useRouter()
 
 const loginData = ref({
   email: '',
@@ -67,9 +84,9 @@ const handleLogin = async () => {
     const response = api.post('/api/auth/login', {
       email: loginData.value.email,
       password: loginData.value.password,
-    });
+    })
 
-    console.log("Response:", await response);
+    console.log('Response:', await response)
 
     if ((await response).data.success) {
       $q.localStorage.set('isLoggedIn', true)
@@ -78,7 +95,7 @@ const handleLogin = async () => {
         textColor: 'white',
         icon: 'cloud_done',
         message: (await response).data.message,
-      });
+      })
 
       router.push('/')
     }
@@ -88,7 +105,7 @@ const handleLogin = async () => {
       textColor: 'white',
       icon: 'error',
       message: error.response.data.message || 'Error during login',
-    });
+    })
   }
 }
 </script>

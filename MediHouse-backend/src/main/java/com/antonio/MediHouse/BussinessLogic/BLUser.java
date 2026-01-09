@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -17,13 +19,18 @@ public class BLUser {
 
     // Create
     @Transactional
-    public User createUser(User user) {
+    public Map<String, Object> createUser(User user) {
+        Map<String, Object> operation = new HashMap<>();
         // Corroborar que el usuario a crear no exista ya mediante correo
-        Optional<User> existentUser = userDA.findByEmail(user.getEmail());
-        if (existentUser.isEmpty()) {
-            return userDA.save(user);
+        boolean userExists = userDA.existsByEmail(user.getEmail());
+        if (userExists) {
+            throw new ResourceAlreadyExistsException("This e-mail is already registered.");
         }
-        throw new ResourceAlreadyExistsException("The e-mail " + user.getEmail() + "already exists.");
+        userDA.save(user);
+
+        operation.put("success", true);
+        operation.put("message", "The user " + user.getName() + " " + user.getLastname() + " is now registered.");
+        return operation;
     }
 
     // Read

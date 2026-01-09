@@ -32,17 +32,17 @@ public class Medicine {
     private List<Alerts> alertList;
 
     // Entity attributes
-    @Column(name = "Name")
+    @Column(name = "Name", nullable = false)
     private String name;
     @Column(name = "ActiveIngredient")
     private String activeIngredient;
-    @Column(name = "PurchaseAmount")
+    @Column(name = "PurchaseAmount", nullable = false)
     private Long purchaseAmount;
-    @Column(name = "CurrentAmount")
+    @Column(name = "CurrentAmount", nullable = false)
     private Double currentAmount;
-    @Column(name = "RegistrationDate")
+    @Column(name = "RegistrationDate", nullable = false)
     private LocalDateTime registrationDate;
-    @Column(name = "ExpirationDate")
+    @Column(name = "ExpirationDate", nullable = false)
     private LocalDate expirationDate;
 
     // Implicit constructor, getters, and setters thanks to Lombok

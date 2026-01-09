@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:9000")
@@ -16,9 +18,9 @@ public class UserController {
 
   // Create
   @PostMapping
-  public ResponseEntity<User> createUser(@RequestBody User user) {
-    User createdUser = userBL.createUser(user);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+  public ResponseEntity<Map<String, Object>> createUser(@RequestBody User user) {
+    Map<String, Object> operation = userBL.createUser(user);
+    return ResponseEntity.status(HttpStatus.CREATED).body(operation);
   }
 
   // Read
